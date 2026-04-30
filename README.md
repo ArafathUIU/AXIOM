@@ -32,3 +32,30 @@ AXIOM is a lightweight, self-hosted API observability engine built with FastAPI.
 | Testing | pytest |
 
 ---
+
+## Local Development
+
+Create a virtual environment and install dependencies:
+
+```bash
+py -m venv .venv
+.venv\Scripts\python -m pip install -e ".[dev]"
+```
+
+Run the API locally:
+
+```bash
+.venv\Scripts\python -m uvicorn app.main:app --reload
+```
+
+Run tests:
+
+```bash
+.venv\Scripts\python -m pytest
+```
+
+Health check endpoint:
+
+```text
+GET /health
+```
