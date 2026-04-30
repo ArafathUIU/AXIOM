@@ -73,3 +73,11 @@ GET /logs/recent?limit=20
 ```
 
 AXIOM logs API requests automatically, excluding `/health` to avoid polluting traffic data with uptime checks.
+
+Analytics endpoints:
+
+```text
+GET /analytics/summary
+GET /analytics/endpoints?limit=20
+GET /analytics/status-codes
+```
