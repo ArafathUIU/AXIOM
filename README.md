@@ -48,6 +48,12 @@ Run the API locally:
 .venv\Scripts\python -m uvicorn app.main:app --reload
 ```
 
+Open the API in your browser:
+
+```text
+http://127.0.0.1:8000/
+```
+
 Run tests:
 
 ```bash
@@ -59,3 +65,11 @@ Health check endpoint:
 ```text
 GET /health
 ```
+
+Recent request logs endpoint:
+
+```text
+GET /logs/recent?limit=20
+```
+
+AXIOM logs API requests automatically, excluding `/health` to avoid polluting traffic data with uptime checks.
