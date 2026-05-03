@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 
 from app.db.session import SessionLocal
 from app.main import app
@@ -89,6 +89,19 @@ def test_status_code_analytics_groups_by_status_code() -> None:
         {"status_code": 404, "count": 1},
         {"status_code": 500, "count": 1},
     ]
+
+
+def test_analytics_summary_supports_time_window() -> None:
+    with SessionLocal() as db:
+        log = db.scalar(select(RequestLog).where(RequestLog.path == "/api/users"))
+
+    assert log is not None
+
+    timestamp = log.created_at.isoformat()
+    response = client.get(f"/analytics/summary?start_time={timestamp}&end_time={timestamp}")
+
+    assert response.status_code == 200
+    assert response.json()["total_requests"] >= 1
 
 
 def _clear_logs() -> None:
