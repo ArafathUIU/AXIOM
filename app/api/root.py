@@ -10,9 +10,12 @@ def read_root() -> dict[str, str | dict[str, str]]:
         "description": "API Intelligence & Observability Monitor",
         "endpoints": {
             "health": "/health",
+            "logs": "/logs?limit=20&offset=0",
             "recent_logs": "/logs/recent?limit=20",
             "analytics_summary": "/analytics/summary",
             "endpoint_analytics": "/analytics/endpoints",
+            "slowest_endpoint_analytics": "/analytics/slowest-endpoints",
+            "error_endpoint_analytics": "/analytics/error-endpoints",
             "status_code_analytics": "/analytics/status-codes",
             "docs": "/docs",
         },

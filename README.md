@@ -53,6 +53,9 @@ Optional local configuration can be copied from `.env.example` into `.env`:
 ```text
 APP_NAME=AXIOM
 APP_VERSION=0.1.0
+ENVIRONMENT=local
+DEBUG=false
+LOG_LEVEL=INFO
 DATABASE_URL=sqlite:///./axiom.db
 ```
 
@@ -70,6 +73,13 @@ Run tests:
 .venv\Scripts\python -m pytest
 ```
 
+Create a database migration after changing SQLAlchemy models:
+
+```bash
+.venv\Scripts\python -m alembic revision --autogenerate -m "describe schema change"
+.venv\Scripts\python -m alembic upgrade head
+```
+
 Health check endpoint:
 
 ```text
@@ -79,6 +89,10 @@ GET /health
 Recent request logs endpoint:
 
 ```text
+GET /logs?limit=20&offset=0
+GET /logs?method=GET&status_code=404&path=/api
+GET /logs?start_time=2026-01-01T00:00:00&end_time=2026-01-02T00:00:00
+GET /logs/{log_id}
 GET /logs/recent?limit=20
 ```
 
@@ -88,6 +102,9 @@ Analytics endpoints:
 
 ```text
 GET /analytics/summary
+GET /analytics/summary?start_time=2026-01-01T00:00:00&end_time=2026-01-02T00:00:00
 GET /analytics/endpoints?limit=20
+GET /analytics/slowest-endpoints?limit=20
+GET /analytics/error-endpoints?limit=20
 GET /analytics/status-codes
 ```
