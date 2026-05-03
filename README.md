@@ -92,6 +92,7 @@ Recent request logs endpoint:
 GET /logs?limit=20&offset=0
 GET /logs?method=GET&status_code=404&path=/api
 GET /logs?start_time=2026-01-01T00:00:00&end_time=2026-01-02T00:00:00
+GET /logs/{log_id}
 GET /logs/recent?limit=20
 ```
 

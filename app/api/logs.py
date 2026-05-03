@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
@@ -55,3 +55,14 @@ def get_recent_logs(
 ) -> list[RequestLog]:
     statement = select(RequestLog).order_by(desc(RequestLog.created_at)).limit(limit)
     return list(db.scalars(statement).all())
+
+
+@router.get("/{log_id}", response_model=RequestLogRead)
+def get_log(
+    log_id: int,
+    db: Annotated[Session, Depends(get_db)],
+) -> RequestLog:
+    log = db.get(RequestLog, log_id)
+    if log is None:
+        raise HTTPException(status_code=404, detail="Request log not found")
+    return log

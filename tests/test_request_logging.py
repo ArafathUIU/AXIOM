@@ -88,6 +88,28 @@ def test_logs_endpoint_filters_by_time_range() -> None:
     assert response.json()["items"][0]["path"] == "/time-filtered-log"
 
 
+def test_log_detail_endpoint_returns_request_log() -> None:
+    client.get("/detail-log")
+
+    with SessionLocal() as db:
+        log = db.scalar(select(RequestLog).where(RequestLog.path == "/detail-log"))
+
+    assert log is not None
+
+    response = client.get(f"/logs/{log.id}")
+
+    assert response.status_code == 200
+    assert response.json()["id"] == log.id
+    assert response.json()["path"] == "/detail-log"
+
+
+def test_log_detail_endpoint_returns_404_for_missing_log() -> None:
+    response = client.get("/logs/999999")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Request log not found"}
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))
