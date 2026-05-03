@@ -53,6 +53,9 @@ Optional local configuration can be copied from `.env.example` into `.env`:
 ```text
 APP_NAME=AXIOM
 APP_VERSION=0.1.0
+ENVIRONMENT=local
+DEBUG=false
+LOG_LEVEL=INFO
 DATABASE_URL=sqlite:///./axiom.db
 ```
 
