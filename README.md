@@ -57,6 +57,9 @@ ENVIRONMENT=local
 DEBUG=false
 LOG_LEVEL=INFO
 DATABASE_URL=sqlite:///./axiom.db
+SLOW_RESPONSE_THRESHOLD_MS=1000
+ERROR_RATE_THRESHOLD_PERCENT=50
+TRAFFIC_BURST_THRESHOLD_COUNT=100
 ```
 
 `DATABASE_URL` defaults to a local SQLite database for development. Set it to a PostgreSQL connection string when running against a production database.
@@ -106,5 +109,16 @@ GET /analytics/summary?start_time=2026-01-01T00:00:00&end_time=2026-01-02T00:00:
 GET /analytics/endpoints?limit=20
 GET /analytics/slowest-endpoints?limit=20
 GET /analytics/error-endpoints?limit=20
+GET /analytics/traffic?interval=hour
+GET /analytics/latency-percentiles
 GET /analytics/status-codes
+GET /analytics/status-code-families
+```
+
+Anomaly detection preview endpoint:
+
+```text
+GET /anomalies?limit=20&offset=0
+GET /anomalies/preview
+POST /anomalies/detect
 ```

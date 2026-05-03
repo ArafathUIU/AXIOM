@@ -134,6 +134,42 @@ def test_error_endpoint_analytics_returns_only_erroring_endpoints() -> None:
     ]
 
 
+def test_traffic_over_time_returns_request_and_error_counts() -> None:
+    response = client.get("/analytics/traffic?interval=day")
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "bucket": response.json()[0]["bucket"],
+            "request_count": 4,
+            "error_count": 2,
+        }
+    ]
+
+
+def test_status_code_family_analytics_groups_by_response_class() -> None:
+    response = client.get("/analytics/status-code-families")
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {"family": "2xx", "count": 2},
+        {"family": "4xx", "count": 1},
+        {"family": "5xx", "count": 1},
+    ]
+
+
+def test_latency_percentiles_returns_response_time_percentiles() -> None:
+    response = client.get("/analytics/latency-percentiles")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "p50_ms": 20.0,
+        "p90_ms": 40.0,
+        "p95_ms": 40.0,
+        "p99_ms": 40.0,
+    }
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))

@@ -16,7 +16,13 @@ def read_root() -> dict[str, str | dict[str, str]]:
             "endpoint_analytics": "/analytics/endpoints",
             "slowest_endpoint_analytics": "/analytics/slowest-endpoints",
             "error_endpoint_analytics": "/analytics/error-endpoints",
+            "traffic_analytics": "/analytics/traffic",
+            "latency_percentiles": "/analytics/latency-percentiles",
             "status_code_analytics": "/analytics/status-codes",
+            "status_code_family_analytics": "/analytics/status-code-families",
+            "anomalies": "/anomalies?limit=20&offset=0",
+            "anomaly_preview": "/anomalies/preview",
+            "anomaly_detection": "/anomalies/detect",
             "docs": "/docs",
         },
     }

@@ -19,3 +19,21 @@ class EndpointAnalytics(BaseModel):
 class StatusCodeAnalytics(BaseModel):
     status_code: int
     count: int
+
+
+class TrafficBucket(BaseModel):
+    bucket: str
+    request_count: int
+    error_count: int
+
+
+class StatusCodeFamilyAnalytics(BaseModel):
+    family: str
+    count: int
+
+
+class LatencyPercentiles(BaseModel):
+    p50_ms: float
+    p90_ms: float
+    p95_ms: float
+    p99_ms: float
