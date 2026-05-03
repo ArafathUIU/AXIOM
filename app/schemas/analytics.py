@@ -25,3 +25,8 @@ class TrafficBucket(BaseModel):
     bucket: str
     request_count: int
     error_count: int
+
+
+class StatusCodeFamilyAnalytics(BaseModel):
+    family: str
+    count: int

@@ -147,6 +147,17 @@ def test_traffic_over_time_returns_request_and_error_counts() -> None:
     ]
 
 
+def test_status_code_family_analytics_groups_by_response_class() -> None:
+    response = client.get("/analytics/status-code-families")
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {"family": "2xx", "count": 2},
+        {"family": "4xx", "count": 1},
+        {"family": "5xx", "count": 1},
+    ]
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))

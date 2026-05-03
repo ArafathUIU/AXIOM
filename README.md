@@ -108,4 +108,5 @@ GET /analytics/slowest-endpoints?limit=20
 GET /analytics/error-endpoints?limit=20
 GET /analytics/traffic?interval=hour
 GET /analytics/status-codes
+GET /analytics/status-code-families
 ```

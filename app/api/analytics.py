@@ -11,6 +11,7 @@ from app.schemas.analytics import (
     AnalyticsSummary,
     EndpointAnalytics,
     StatusCodeAnalytics,
+    StatusCodeFamilyAnalytics,
     TrafficBucket,
 )
 
@@ -101,6 +102,27 @@ def get_status_code_analytics(
     return [
         StatusCodeAnalytics(status_code=row.status_code, count=row.count)
         for row in db.execute(statement)
+    ]
+
+
+@router.get("/status-code-families", response_model=list[StatusCodeFamilyAnalytics])
+def get_status_code_family_analytics(
+    db: Annotated[Session, Depends(get_db)],
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
+) -> list[StatusCodeFamilyAnalytics]:
+    statement = select(RequestLog.status_code).where(*_time_filters(start_time, end_time))
+    families = {"1xx": 0, "2xx": 0, "3xx": 0, "4xx": 0, "5xx": 0}
+
+    for status_code in db.scalars(statement):
+        family = f"{status_code // 100}xx"
+        if family in families:
+            families[family] += 1
+
+    return [
+        StatusCodeFamilyAnalytics(family=family, count=count)
+        for family, count in families.items()
+        if count > 0
     ]
 
 
