@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from app.api.anomalies import router as anomalies_router
 from app.api.analytics import router as analytics_router
 from app.api.health import router as health_router
 from app.api.logs import router as logs_router
@@ -21,6 +22,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(logs_router)
     app.include_router(analytics_router)
+    app.include_router(anomalies_router)
     return app
 
 

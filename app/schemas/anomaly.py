@@ -1,0 +1,12 @@
+from datetime import datetime
+
+from pydantic import BaseModel
+
+
+class AnomalyRead(BaseModel):
+    type: str
+    severity: str
+    message: str
+    observed_value: float
+    threshold: float
+    detected_at: datetime

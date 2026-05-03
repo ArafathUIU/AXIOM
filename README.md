@@ -111,3 +111,9 @@ GET /analytics/latency-percentiles
 GET /analytics/status-codes
 GET /analytics/status-code-families
 ```
+
+Anomaly detection preview endpoint:
+
+```text
+GET /anomalies/preview
+```
