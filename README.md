@@ -73,6 +73,13 @@ Run tests:
 .venv\Scripts\python -m pytest
 ```
 
+Create a database migration after changing SQLAlchemy models:
+
+```bash
+.venv\Scripts\python -m alembic revision --autogenerate -m "describe schema change"
+.venv\Scripts\python -m alembic upgrade head
+```
+
 Health check endpoint:
 
 ```text
