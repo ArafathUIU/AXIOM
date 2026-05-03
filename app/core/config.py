@@ -13,6 +13,14 @@ class Settings(BaseSettings):
     slow_response_threshold_ms: float = 1000.0
     error_rate_threshold_percent: float = 50.0
     traffic_burst_threshold_count: int = 100
+    enable_rate_limiting: bool = True
+    ip_rate_limit_per_minute: int = 1000
+    api_key_rate_limit_per_minute: int = 1000
+    redis_url: str | None = None
+    cors_origins: str = "*"
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-1.5-flash"
+    admin_token: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -23,6 +31,12 @@ class Settings(BaseSettings):
     @property
     def is_sqlite(self) -> bool:
         return self.database_url.startswith("sqlite")
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        if self.cors_origins == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
 
 @lru_cache

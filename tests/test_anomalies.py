@@ -6,6 +6,7 @@ from sqlalchemy import delete
 
 from app.db.session import SessionLocal
 from app.main import app
+from app.core.config import settings
 from app.models.anomaly import Anomaly
 from app.models.request_log import RequestLog
 
@@ -156,6 +157,60 @@ def test_anomaly_listing_returns_persisted_anomalies() -> None:
     assert response.json()["limit"] == 1
     assert response.json()["offset"] == 0
     assert response.json()["items"][0]["type"] == "slow_response"
+
+
+def test_anomaly_summary_groups_persisted_anomalies() -> None:
+    with SessionLocal() as db:
+        db.add_all(
+            [
+                Anomaly(
+                    type="slow_response",
+                    severity="warning",
+                    message="Slow response detected",
+                    observed_value=1500,
+                    threshold=1000,
+                    detected_at=datetime.now(UTC),
+                ),
+                Anomaly(
+                    type="error_spike",
+                    severity="critical",
+                    message="Error spike detected",
+                    observed_value=75,
+                    threshold=50,
+                    detected_at=datetime.now(UTC),
+                ),
+            ]
+        )
+        db.commit()
+
+    response = client.get("/anomalies/summary")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 2
+    assert {item["name"]: item["count"] for item in response.json()["by_severity"]} == {
+        "warning": 1,
+        "critical": 1,
+    }
+    assert {item["name"]: item["count"] for item in response.json()["by_type"]} == {
+        "slow_response": 1,
+        "error_spike": 1,
+    }
+
+
+def test_anomaly_detection_requires_admin_token_when_configured() -> None:
+    original_admin_token = settings.admin_token
+    settings.admin_token = "test-admin-token"
+    try:
+        rejected_response = client.post("/anomalies/detect")
+        accepted_response = client.post(
+            "/anomalies/detect",
+            headers={"X-Admin-Token": "test-admin-token"},
+        )
+    finally:
+        settings.admin_token = original_admin_token
+
+    assert rejected_response.status_code == 403
+    assert accepted_response.status_code == 200
 
 
 def _clear_data() -> None:
