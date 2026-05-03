@@ -16,10 +16,23 @@ def list_logs(
     db: Annotated[Session, Depends(get_db)],
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
+    method: Annotated[str | None, Query(min_length=1, max_length=16)] = None,
+    status_code: Annotated[int | None, Query(ge=100, le=599)] = None,
+    path: Annotated[str | None, Query(min_length=1, max_length=512)] = None,
 ) -> RequestLogPage:
-    total = db.scalar(select(func.count()).select_from(RequestLog)) or 0
+    filters = []
+    if method is not None:
+        filters.append(RequestLog.method == method.upper())
+    if status_code is not None:
+        filters.append(RequestLog.status_code == status_code)
+    if path is not None:
+        filters.append(RequestLog.path.contains(path))
+
+    total_statement = select(func.count()).select_from(RequestLog).where(*filters)
+    total = db.scalar(total_statement) or 0
     statement = (
         select(RequestLog)
+        .where(*filters)
         .order_by(desc(RequestLog.created_at))
         .offset(offset)
         .limit(limit)

@@ -90,6 +90,7 @@ Recent request logs endpoint:
 
 ```text
 GET /logs?limit=20&offset=0
+GET /logs?method=GET&status_code=404&path=/api
 GET /logs/recent?limit=20
 ```
 

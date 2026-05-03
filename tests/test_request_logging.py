@@ -60,6 +60,18 @@ def test_logs_endpoint_returns_pagination_metadata() -> None:
     assert len(response.json()["items"]) == 1
 
 
+def test_logs_endpoint_filters_request_logs() -> None:
+    client.get("/filter-me")
+    client.post("/skip-me")
+
+    response = client.get("/logs?method=get&status_code=404&path=filter")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["method"] == "GET"
+    assert response.json()["items"][0]["path"] == "/filter-me"
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))
