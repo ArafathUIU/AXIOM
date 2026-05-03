@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = "INFO"
     database_url: str = "sqlite:///./axiom.db"
+    slow_response_threshold_ms: float = 1000.0
 
     model_config = SettingsConfigDict(
         env_file=".env",
