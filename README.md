@@ -48,6 +48,16 @@ Run the API locally:
 .venv\Scripts\python -m uvicorn app.main:app --reload
 ```
 
+Optional local configuration can be copied from `.env.example` into `.env`:
+
+```text
+APP_NAME=AXIOM
+APP_VERSION=0.1.0
+DATABASE_URL=sqlite:///./axiom.db
+```
+
+`DATABASE_URL` defaults to a local SQLite database for development. Set it to a PostgreSQL connection string when running against a production database.
+
 Open the API in your browser:
 
 ```text
