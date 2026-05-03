@@ -119,6 +119,7 @@ Anomaly detection preview endpoint:
 
 ```text
 GET /anomalies?limit=20&offset=0
+GET /anomalies/summary
 GET /anomalies/preview
 POST /anomalies/detect
 ```

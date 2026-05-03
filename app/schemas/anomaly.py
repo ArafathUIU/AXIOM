@@ -24,3 +24,14 @@ class AnomalyPage(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+class AnomalyCount(BaseModel):
+    name: str
+    count: int
+
+
+class AnomalySummary(BaseModel):
+    total: int
+    by_severity: list[AnomalyCount]
+    by_type: list[AnomalyCount]
