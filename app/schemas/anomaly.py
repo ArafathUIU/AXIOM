@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class AnomalyRead(BaseModel):
@@ -10,3 +10,10 @@ class AnomalyRead(BaseModel):
     observed_value: float
     threshold: float
     detected_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PersistedAnomalyRead(AnomalyRead):
+    id: int
+    created_at: datetime

@@ -8,7 +8,7 @@ from app.api.root import router as root_router
 from app.core.config import settings
 from app.db.init_db import init_db
 from app.middleware.request_logger import register_request_logger
-from app.models import RequestLog  # noqa: F401
+from app.models import Anomaly, RequestLog  # noqa: F401
 
 
 def create_app() -> FastAPI:

@@ -119,4 +119,5 @@ Anomaly detection preview endpoint:
 
 ```text
 GET /anomalies/preview
+POST /anomalies/detect
 ```

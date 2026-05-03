@@ -4,6 +4,7 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.models.anomaly import Anomaly
 from app.models.request_log import RequestLog
 from app.schemas.anomaly import AnomalyRead
 
@@ -24,6 +25,30 @@ def detect_anomalies(
         *_detect_error_spike(db, filters),
         *_detect_traffic_burst(db, filters),
     ]
+
+
+def persist_detected_anomalies(
+    db: Session,
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
+) -> list[Anomaly]:
+    detected = detect_anomalies(db, start_time=start_time, end_time=end_time)
+    anomalies = [
+        Anomaly(
+            type=anomaly.type,
+            severity=anomaly.severity,
+            message=anomaly.message,
+            observed_value=anomaly.observed_value,
+            threshold=anomaly.threshold,
+            detected_at=anomaly.detected_at,
+        )
+        for anomaly in detected
+    ]
+    db.add_all(anomalies)
+    db.commit()
+    for anomaly in anomalies:
+        db.refresh(anomaly)
+    return anomalies
 
 
 def _detect_slow_response(db: Session, filters: list[object]) -> list[AnomalyRead]:

@@ -21,6 +21,7 @@ def read_root() -> dict[str, str | dict[str, str]]:
             "status_code_analytics": "/analytics/status-codes",
             "status_code_family_analytics": "/analytics/status-code-families",
             "anomaly_preview": "/anomalies/preview",
+            "anomaly_detection": "/anomalies/detect",
             "docs": "/docs",
         },
     }
