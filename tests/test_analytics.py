@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import delete, select
@@ -97,8 +99,9 @@ def test_analytics_summary_supports_time_window() -> None:
 
     assert log is not None
 
-    timestamp = log.created_at.isoformat()
-    response = client.get(f"/analytics/summary?start_time={timestamp}&end_time={timestamp}")
+    start_time = (log.created_at - timedelta(seconds=1)).isoformat()
+    end_time = (log.created_at + timedelta(seconds=1)).isoformat()
+    response = client.get(f"/analytics/summary?start_time={start_time}&end_time={end_time}")
 
     assert response.status_code == 200
     assert response.json()["total_requests"] >= 1

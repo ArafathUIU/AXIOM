@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import delete, func, select
@@ -80,8 +82,9 @@ def test_logs_endpoint_filters_by_time_range() -> None:
 
     assert log is not None
 
-    start_time = log.created_at.isoformat()
-    response = client.get(f"/logs?start_time={start_time}&end_time={start_time}")
+    start_time = (log.created_at - timedelta(seconds=1)).isoformat()
+    end_time = (log.created_at + timedelta(seconds=1)).isoformat()
+    response = client.get(f"/logs?start_time={start_time}&end_time={end_time}")
 
     assert response.status_code == 200
     assert response.json()["total"] == 1

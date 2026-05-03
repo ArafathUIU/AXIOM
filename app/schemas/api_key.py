@@ -22,3 +22,10 @@ class APIKeyCreate(BaseModel):
 
 class APIKeyCreateResponse(APIKeyRead):
     key: str
+
+
+class APIKeyPage(BaseModel):
+    items: list[APIKeyRead]
+    total: int
+    limit: int
+    offset: int

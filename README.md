@@ -60,6 +60,13 @@ DATABASE_URL=sqlite:///./axiom.db
 SLOW_RESPONSE_THRESHOLD_MS=1000
 ERROR_RATE_THRESHOLD_PERCENT=50
 TRAFFIC_BURST_THRESHOLD_COUNT=100
+ENABLE_RATE_LIMITING=true
+IP_RATE_LIMIT_PER_MINUTE=1000
+API_KEY_RATE_LIMIT_PER_MINUTE=1000
+REDIS_URL=
+CORS_ORIGINS=*
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=claude-3-5-sonnet-latest
 ```
 
 `DATABASE_URL` defaults to a local SQLite database for development. Set it to a PostgreSQL connection string when running against a production database.
@@ -68,6 +75,7 @@ Open the API in your browser:
 
 ```text
 http://127.0.0.1:8000/
+http://127.0.0.1:8000/dashboard
 ```
 
 Run tests:
@@ -123,3 +131,28 @@ GET /anomalies/summary
 GET /anomalies/preview
 POST /anomalies/detect
 ```
+
+API key endpoints:
+
+```text
+GET /api-keys?limit=20&offset=0
+POST /api-keys
+POST /api-keys/{api_key_id}/revoke
+GET /api-keys/{api_key_id}/analytics
+```
+
+Insight endpoints:
+
+```text
+GET /insights?limit=20&offset=0
+POST /insights
+```
+
+Dashboard endpoint:
+
+```text
+GET /dashboard
+GET /dashboard/summary
+```
+
+Use the `X-API-Key` header to track API key usage. Requests without an API key are still accepted and rate limited by client IP.

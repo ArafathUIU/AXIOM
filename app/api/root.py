@@ -12,6 +12,8 @@ def read_root() -> dict[str, str | dict[str, str]]:
             "health": "/health",
             "logs": "/logs?limit=20&offset=0",
             "recent_logs": "/logs/recent?limit=20",
+            "dashboard": "/dashboard",
+            "dashboard_summary": "/dashboard/summary",
             "analytics_summary": "/analytics/summary",
             "endpoint_analytics": "/analytics/endpoints",
             "slowest_endpoint_analytics": "/analytics/slowest-endpoints",
@@ -24,6 +26,8 @@ def read_root() -> dict[str, str | dict[str, str]]:
             "anomaly_summary": "/anomalies/summary",
             "anomaly_preview": "/anomalies/preview",
             "anomaly_detection": "/anomalies/detect",
+            "api_keys": "/api-keys",
+            "insights": "/insights",
             "docs": "/docs",
         },
     }

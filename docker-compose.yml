@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////app/data/axiom.db
+      ENABLE_RATE_LIMITING: "true"
+    volumes:
+      - axiom-data:/app/data
+
+volumes:
+  axiom-data:
