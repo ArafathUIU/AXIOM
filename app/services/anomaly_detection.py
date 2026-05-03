@@ -22,6 +22,7 @@ def detect_anomalies(
     return [
         *_detect_slow_response(db, filters),
         *_detect_error_spike(db, filters),
+        *_detect_traffic_burst(db, filters),
     ]
 
 
@@ -73,6 +74,25 @@ def _detect_error_spike(db: Session, filters: list[object]) -> list[AnomalyRead]
             message=f"Error rate reached {error_rate:.2f}% across {total_requests} requests",
             observed_value=round(error_rate, 2),
             threshold=settings.error_rate_threshold_percent,
+            detected_at=datetime.now(UTC),
+        )
+    ]
+
+
+def _detect_traffic_burst(db: Session, filters: list[object]) -> list[AnomalyRead]:
+    total_requests = db.scalar(
+        select(func.count()).select_from(RequestLog).where(*filters)
+    ) or 0
+    if total_requests < settings.traffic_burst_threshold_count:
+        return []
+
+    return [
+        AnomalyRead(
+            type="traffic_burst",
+            severity="warning",
+            message=f"Traffic volume reached {total_requests} requests",
+            observed_value=float(total_requests),
+            threshold=float(settings.traffic_burst_threshold_count),
             detected_at=datetime.now(UTC),
         )
     ]

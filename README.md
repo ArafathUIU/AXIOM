@@ -59,6 +59,7 @@ LOG_LEVEL=INFO
 DATABASE_URL=sqlite:///./axiom.db
 SLOW_RESPONSE_THRESHOLD_MS=1000
 ERROR_RATE_THRESHOLD_PERCENT=50
+TRAFFIC_BURST_THRESHOLD_COUNT=100
 ```
 
 `DATABASE_URL` defaults to a local SQLite database for development. Set it to a PostgreSQL connection string when running against a production database.

@@ -83,6 +83,28 @@ def test_anomaly_preview_detects_error_spikes() -> None:
     assert response.json()[0]["observed_value"] == 66.67
 
 
+def test_anomaly_preview_detects_traffic_bursts() -> None:
+    with SessionLocal() as db:
+        db.add_all(
+            RequestLog(
+                method="GET",
+                path="/busy",
+                status_code=200,
+                response_time_ms=20,
+                client_ip="127.0.0.1",
+                user_agent="test-client",
+            )
+            for _ in range(100)
+        )
+        db.commit()
+
+    response = client.get("/anomalies/preview")
+
+    assert response.status_code == 200
+    assert response.json()[0]["type"] == "traffic_burst"
+    assert response.json()[0]["observed_value"] == 100.0
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))
