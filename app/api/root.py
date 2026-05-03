@@ -16,6 +16,7 @@ def read_root() -> dict[str, str | dict[str, str]]:
             "endpoint_analytics": "/analytics/endpoints",
             "slowest_endpoint_analytics": "/analytics/slowest-endpoints",
             "error_endpoint_analytics": "/analytics/error-endpoints",
+            "traffic_analytics": "/analytics/traffic",
             "status_code_analytics": "/analytics/status-codes",
             "docs": "/docs",
         },

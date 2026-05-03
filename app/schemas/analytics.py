@@ -19,3 +19,9 @@ class EndpointAnalytics(BaseModel):
 class StatusCodeAnalytics(BaseModel):
     status_code: int
     count: int
+
+
+class TrafficBucket(BaseModel):
+    bucket: str
+    request_count: int
+    error_count: int

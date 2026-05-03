@@ -134,6 +134,19 @@ def test_error_endpoint_analytics_returns_only_erroring_endpoints() -> None:
     ]
 
 
+def test_traffic_over_time_returns_request_and_error_counts() -> None:
+    response = client.get("/analytics/traffic?interval=day")
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "bucket": response.json()[0]["bucket"],
+            "request_count": 4,
+            "error_count": 2,
+        }
+    ]
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))

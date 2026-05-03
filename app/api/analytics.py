@@ -11,6 +11,7 @@ from app.schemas.analytics import (
     AnalyticsSummary,
     EndpointAnalytics,
     StatusCodeAnalytics,
+    TrafficBucket,
 )
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
@@ -174,6 +175,31 @@ def get_error_endpoint_analytics(
     ]
 
 
+@router.get("/traffic", response_model=list[TrafficBucket])
+def get_traffic_over_time(
+    db: Annotated[Session, Depends(get_db)],
+    interval: Annotated[str, Query(pattern="^(hour|day)$")] = "hour",
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
+) -> list[TrafficBucket]:
+    statement = (
+        select(RequestLog)
+        .where(*_time_filters(start_time, end_time))
+        .order_by(RequestLog.created_at)
+    )
+    buckets: dict[str, TrafficBucket] = {}
+
+    for log in db.scalars(statement):
+        bucket = _format_traffic_bucket(log.created_at, interval)
+        if bucket not in buckets:
+            buckets[bucket] = TrafficBucket(bucket=bucket, request_count=0, error_count=0)
+        buckets[bucket].request_count += 1
+        if log.status_code >= 400:
+            buckets[bucket].error_count += 1
+
+    return list(buckets.values())
+
+
 def _time_filters(start_time: datetime | None, end_time: datetime | None) -> list[object]:
     filters = []
     if start_time is not None:
@@ -181,3 +207,9 @@ def _time_filters(start_time: datetime | None, end_time: datetime | None) -> lis
     if end_time is not None:
         filters.append(RequestLog.created_at <= end_time)
     return filters
+
+
+def _format_traffic_bucket(created_at: datetime, interval: str) -> str:
+    if interval == "day":
+        return created_at.strftime("%Y-%m-%d")
+    return created_at.strftime("%Y-%m-%dT%H:00:00")
