@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -19,6 +20,8 @@ def list_logs(
     method: Annotated[str | None, Query(min_length=1, max_length=16)] = None,
     status_code: Annotated[int | None, Query(ge=100, le=599)] = None,
     path: Annotated[str | None, Query(min_length=1, max_length=512)] = None,
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
 ) -> RequestLogPage:
     filters = []
     if method is not None:
@@ -27,6 +30,10 @@ def list_logs(
         filters.append(RequestLog.status_code == status_code)
     if path is not None:
         filters.append(RequestLog.path.contains(path))
+    if start_time is not None:
+        filters.append(RequestLog.created_at >= start_time)
+    if end_time is not None:
+        filters.append(RequestLog.created_at <= end_time)
 
     total_statement = select(func.count()).select_from(RequestLog).where(*filters)
     total = db.scalar(total_statement) or 0

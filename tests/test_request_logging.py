@@ -72,6 +72,22 @@ def test_logs_endpoint_filters_request_logs() -> None:
     assert response.json()["items"][0]["path"] == "/filter-me"
 
 
+def test_logs_endpoint_filters_by_time_range() -> None:
+    client.get("/time-filtered-log")
+
+    with SessionLocal() as db:
+        log = db.scalar(select(RequestLog).where(RequestLog.path == "/time-filtered-log"))
+
+    assert log is not None
+
+    start_time = log.created_at.isoformat()
+    response = client.get(f"/logs?start_time={start_time}&end_time={start_time}")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["path"] == "/time-filtered-log"
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))
