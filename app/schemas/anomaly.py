@@ -17,3 +17,10 @@ class AnomalyRead(BaseModel):
 class PersistedAnomalyRead(AnomalyRead):
     id: int
     created_at: datetime
+
+
+class AnomalyPage(BaseModel):
+    items: list[PersistedAnomalyRead]
+    total: int
+    limit: int
+    offset: int

@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import delete
@@ -131,6 +133,29 @@ def test_anomaly_detection_persists_detected_anomalies() -> None:
 
     assert persisted is not None
     assert persisted.type == "slow_response"
+
+
+def test_anomaly_listing_returns_persisted_anomalies() -> None:
+    with SessionLocal() as db:
+        db.add(
+            Anomaly(
+                type="slow_response",
+                severity="warning",
+                message="Slow response detected",
+                observed_value=1500,
+                threshold=1000,
+                detected_at=datetime.now(UTC),
+            )
+        )
+        db.commit()
+
+    response = client.get("/anomalies?limit=1&offset=0")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["limit"] == 1
+    assert response.json()["offset"] == 0
+    assert response.json()["items"][0]["type"] == "slow_response"
 
 
 def _clear_data() -> None:
