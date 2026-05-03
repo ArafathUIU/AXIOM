@@ -89,6 +89,7 @@ GET /health
 Recent request logs endpoint:
 
 ```text
+GET /logs?limit=20&offset=0
 GET /logs/recent?limit=20
 ```
 

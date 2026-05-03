@@ -47,6 +47,19 @@ def test_recent_logs_endpoint_returns_request_logs() -> None:
     assert response.json()[0]["path"] == "/missing-for-recent-logs"
 
 
+def test_logs_endpoint_returns_pagination_metadata() -> None:
+    client.get("/first-paginated-log")
+    client.get("/second-paginated-log")
+
+    response = client.get("/logs?limit=1&offset=1")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 2
+    assert response.json()["limit"] == 1
+    assert response.json()["offset"] == 1
+    assert len(response.json()["items"]) == 1
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))

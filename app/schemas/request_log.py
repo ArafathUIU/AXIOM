@@ -14,3 +14,10 @@ class RequestLogRead(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class RequestLogPage(BaseModel):
+    items: list[RequestLogRead]
+    total: int
+    limit: int
+    offset: int
