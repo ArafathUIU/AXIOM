@@ -1,4 +1,5 @@
 from datetime import datetime
+from math import ceil
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -10,6 +11,7 @@ from app.models.request_log import RequestLog
 from app.schemas.analytics import (
     AnalyticsSummary,
     EndpointAnalytics,
+    LatencyPercentiles,
     StatusCodeAnalytics,
     StatusCodeFamilyAnalytics,
     TrafficBucket,
@@ -222,6 +224,27 @@ def get_traffic_over_time(
     return list(buckets.values())
 
 
+@router.get("/latency-percentiles", response_model=LatencyPercentiles)
+def get_latency_percentiles(
+    db: Annotated[Session, Depends(get_db)],
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
+) -> LatencyPercentiles:
+    statement = (
+        select(RequestLog.response_time_ms)
+        .where(*_time_filters(start_time, end_time))
+        .order_by(RequestLog.response_time_ms)
+    )
+    values = [float(value) for value in db.scalars(statement)]
+
+    return LatencyPercentiles(
+        p50_ms=_percentile(values, 0.50),
+        p90_ms=_percentile(values, 0.90),
+        p95_ms=_percentile(values, 0.95),
+        p99_ms=_percentile(values, 0.99),
+    )
+
+
 def _time_filters(start_time: datetime | None, end_time: datetime | None) -> list[object]:
     filters = []
     if start_time is not None:
@@ -235,3 +258,10 @@ def _format_traffic_bucket(created_at: datetime, interval: str) -> str:
     if interval == "day":
         return created_at.strftime("%Y-%m-%d")
     return created_at.strftime("%Y-%m-%dT%H:00:00")
+
+
+def _percentile(values: list[float], percentile: float) -> float:
+    if not values:
+        return 0.0
+    index = max(ceil(len(values) * percentile) - 1, 0)
+    return round(values[index], 2)

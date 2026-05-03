@@ -158,6 +158,18 @@ def test_status_code_family_analytics_groups_by_response_class() -> None:
     ]
 
 
+def test_latency_percentiles_returns_response_time_percentiles() -> None:
+    response = client.get("/analytics/latency-percentiles")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "p50_ms": 20.0,
+        "p90_ms": 40.0,
+        "p95_ms": 40.0,
+        "p99_ms": 40.0,
+    }
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))
