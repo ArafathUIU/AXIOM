@@ -103,6 +103,42 @@ def get_status_code_analytics(
     ]
 
 
+@router.get("/slowest-endpoints", response_model=list[EndpointAnalytics])
+def get_slowest_endpoint_analytics(
+    db: Annotated[Session, Depends(get_db)],
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    start_time: datetime | None = None,
+    end_time: datetime | None = None,
+) -> list[EndpointAnalytics]:
+    filters = _time_filters(start_time, end_time)
+    error_count = func.sum(case((RequestLog.status_code >= 400, 1), else_=0))
+    average_response_time = func.avg(RequestLog.response_time_ms)
+    statement = (
+        select(
+            RequestLog.method,
+            RequestLog.path,
+            func.count().label("request_count"),
+            error_count.label("error_count"),
+            average_response_time.label("average_response_time_ms"),
+        )
+        .where(*filters)
+        .group_by(RequestLog.method, RequestLog.path)
+        .order_by(desc(average_response_time))
+        .limit(limit)
+    )
+
+    return [
+        EndpointAnalytics(
+            method=row.method,
+            path=row.path,
+            request_count=row.request_count,
+            error_count=row.error_count,
+            average_response_time_ms=round(float(row.average_response_time_ms), 2),
+        )
+        for row in db.execute(statement)
+    ]
+
+
 def _time_filters(start_time: datetime | None, end_time: datetime | None) -> list[object]:
     filters = []
     if start_time is not None:

@@ -104,5 +104,6 @@ Analytics endpoints:
 GET /analytics/summary
 GET /analytics/summary?start_time=2026-01-01T00:00:00&end_time=2026-01-02T00:00:00
 GET /analytics/endpoints?limit=20
+GET /analytics/slowest-endpoints?limit=20
 GET /analytics/status-codes
 ```

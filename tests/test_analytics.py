@@ -104,6 +104,14 @@ def test_analytics_summary_supports_time_window() -> None:
     assert response.json()["total_requests"] >= 1
 
 
+def test_slowest_endpoint_analytics_orders_by_average_response_time() -> None:
+    response = client.get("/analytics/slowest-endpoints")
+
+    assert response.status_code == 200
+    assert response.json()[0]["path"] == "/api/missing"
+    assert response.json()[0]["average_response_time_ms"] == 40.0
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))
