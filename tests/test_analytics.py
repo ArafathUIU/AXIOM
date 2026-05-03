@@ -112,6 +112,28 @@ def test_slowest_endpoint_analytics_orders_by_average_response_time() -> None:
     assert response.json()[0]["average_response_time_ms"] == 40.0
 
 
+def test_error_endpoint_analytics_returns_only_erroring_endpoints() -> None:
+    response = client.get("/analytics/error-endpoints")
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "method": "GET",
+            "path": "/api/missing",
+            "request_count": 1,
+            "error_count": 1,
+            "average_response_time_ms": 40.0,
+        },
+        {
+            "method": "GET",
+            "path": "/api/users",
+            "request_count": 1,
+            "error_count": 1,
+            "average_response_time_ms": 30.0,
+        },
+    ]
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))
