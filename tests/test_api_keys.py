@@ -4,6 +4,7 @@ from sqlalchemy import delete
 
 from app.db.session import SessionLocal
 from app.main import app
+from app.core.config import settings
 from app.models.api_key import APIKey
 
 client = TestClient(app)
@@ -52,3 +53,20 @@ def test_api_key_can_be_created_listed_used_and_revoked() -> None:
 
     rejected_response = client.get("/", headers={"x-api-key": raw_key})
     assert rejected_response.status_code == 401
+
+
+def test_api_key_creation_requires_admin_token_when_configured() -> None:
+    original_admin_token = settings.admin_token
+    settings.admin_token = "test-admin-token"
+    try:
+        rejected_response = client.post("/api-keys", json={"name": "dashboard"})
+        accepted_response = client.post(
+            "/api-keys",
+            json={"name": "dashboard"},
+            headers={"X-Admin-Token": "test-admin-token"},
+        )
+    finally:
+        settings.admin_token = original_admin_token
+
+    assert rejected_response.status_code == 403
+    assert accepted_response.status_code == 201

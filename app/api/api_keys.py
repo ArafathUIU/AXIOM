@@ -5,6 +5,7 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.core.security import require_admin_token
 from app.models.api_key import APIKey
 from app.schemas.api_key import APIKeyCreate, APIKeyCreateResponse, APIKeyPage, APIKeyRead
 from app.services.api_keys import create_api_key, revoke_api_key
@@ -32,6 +33,7 @@ def list_api_keys(
 def create_key(
     payload: APIKeyCreate,
     db: Annotated[Session, Depends(get_db)],
+    _: Annotated[None, Depends(require_admin_token)],
 ) -> APIKeyCreateResponse:
     api_key, raw_key = create_api_key(db, payload.name)
     return APIKeyCreateResponse(
@@ -48,7 +50,11 @@ def create_key(
 
 
 @router.post("/{api_key_id}/revoke", response_model=APIKeyRead)
-def revoke_key(api_key_id: int, db: Annotated[Session, Depends(get_db)]) -> APIKey:
+def revoke_key(
+    api_key_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    _: Annotated[None, Depends(require_admin_token)],
+) -> APIKey:
     api_key = db.get(APIKey, api_key_id)
     if api_key is None:
         raise HTTPException(status_code=404, detail="API key not found")

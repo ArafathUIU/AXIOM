@@ -73,6 +73,23 @@
           <div id="anomaly-summary" class="stack-list"></div>
         </article>
 
+        <article class="panel">
+          <p class="eyebrow">Responses</p>
+          <h2>Status Codes</h2>
+          <div id="status-codes" class="stack-list"></div>
+        </article>
+
+        <article class="panel">
+          <p class="eyebrow">AI Insight</p>
+          <h2>Ask AXIOM</h2>
+          <form id="insight-form" class="insight-form">
+            <input id="admin-token" type="password" placeholder="Admin token, if configured" />
+            <textarea id="insight-prompt" rows="3">Summarize the current API health.</textarea>
+            <button type="submit">Generate Insight</button>
+          </form>
+          <div id="insight-result" class="insight-result empty">No insight generated yet.</div>
+        </article>
+
         <article class="panel wide">
           <p class="eyebrow">Endpoints</p>
           <h2>Top API Paths</h2>
@@ -96,6 +113,12 @@
           <p class="eyebrow">Recent Activity</p>
           <h2>Request Logs</h2>
           <div id="recent-logs" class="log-list"></div>
+        </article>
+
+        <article class="panel wide">
+          <p class="eyebrow">Detected Issues</p>
+          <h2>Recent Anomalies</h2>
+          <div id="recent-anomalies" class="log-list"></div>
         </article>
       </section>
     </main>

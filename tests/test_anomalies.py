@@ -6,6 +6,7 @@ from sqlalchemy import delete
 
 from app.db.session import SessionLocal
 from app.main import app
+from app.core.config import settings
 from app.models.anomaly import Anomaly
 from app.models.request_log import RequestLog
 
@@ -194,6 +195,22 @@ def test_anomaly_summary_groups_persisted_anomalies() -> None:
         "slow_response": 1,
         "error_spike": 1,
     }
+
+
+def test_anomaly_detection_requires_admin_token_when_configured() -> None:
+    original_admin_token = settings.admin_token
+    settings.admin_token = "test-admin-token"
+    try:
+        rejected_response = client.post("/anomalies/detect")
+        accepted_response = client.post(
+            "/anomalies/detect",
+            headers={"X-Admin-Token": "test-admin-token"},
+        )
+    finally:
+        settings.admin_token = original_admin_token
+
+    assert rejected_response.status_code == 403
+    assert accepted_response.status_code == 200
 
 
 def _clear_data() -> None:

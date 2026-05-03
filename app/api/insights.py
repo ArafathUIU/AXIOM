@@ -5,6 +5,7 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.core.security import require_admin_token
 from app.models.ai_insight import AIInsight
 from app.schemas.insight import InsightCreate, InsightPage, InsightRead
 from app.services.insights import generate_insight
@@ -13,7 +14,11 @@ router = APIRouter(prefix="/insights", tags=["insights"])
 
 
 @router.post("", response_model=InsightRead, status_code=201)
-def create_insight(payload: InsightCreate, db: Annotated[Session, Depends(get_db)]) -> AIInsight:
+def create_insight(
+    payload: InsightCreate,
+    db: Annotated[Session, Depends(get_db)],
+    _: Annotated[None, Depends(require_admin_token)],
+) -> AIInsight:
     return generate_insight(db, payload.prompt)
 
 

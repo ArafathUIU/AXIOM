@@ -14,7 +14,7 @@ AXIOM is a lightweight, self-hosted API observability engine built with FastAPI.
 - **Anomaly Detection** — Real-time alerts for error spikes, slow responses, and traffic bursts
 - **Rate Limiting** — Per-IP and per-API-key request throttling
 - **API Key System** — Generate, track, and revoke API keys with per-key usage stats
-- **AI Insight Layer** — Natural language analysis of your logs powered by Claude AI
+- **AI Insight Layer** — Natural language analysis of your logs powered by Gemini AI
 - **Dashboard-ready JSON** — Structured responses designed for frontend visualization
 
 ---
@@ -26,7 +26,7 @@ AXIOM is a lightweight, self-hosted API observability engine built with FastAPI.
 | Framework | FastAPI |
 | Database | PostgreSQL (SQLite for dev) |
 | ORM | SQLAlchemy |
-| AI Layer | Claude API (Anthropic) |
+| AI Layer | Gemini API |
 | Rate Limiting | slowapi + Redis |
 | Deployment | Docker + Railway |
 | Testing | pytest |
@@ -65,8 +65,9 @@ IP_RATE_LIMIT_PER_MINUTE=1000
 API_KEY_RATE_LIMIT_PER_MINUTE=1000
 REDIS_URL=
 CORS_ORIGINS=*
-ANTHROPIC_API_KEY=
-ANTHROPIC_MODEL=claude-3-5-sonnet-latest
+GEMINI_API_KEY=
+ADMIN_TOKEN=change-this-local-admin-token
+GEMINI_MODEL=gemini-1.5-flash
 ```
 
 `DATABASE_URL` defaults to a local SQLite database for development. Set it to a PostgreSQL connection string when running against a production database.
@@ -148,6 +149,14 @@ GET /insights?limit=20&offset=0
 POST /insights
 ```
 
+Management endpoints can be protected with `ADMIN_TOKEN`. When it is set, include this header for mutating admin actions:
+
+```text
+X-Admin-Token: your-admin-token
+```
+
+Protected actions include creating/revoking API keys, persisting anomaly detection results, and generating AI insights.
+
 Dashboard endpoint:
 
 ```text
@@ -156,3 +165,7 @@ GET /dashboard/summary
 ```
 
 Use the `X-API-Key` header to track API key usage. Requests without an API key are still accepted and rate limited by client IP.
+
+AI insights use Gemini when `GEMINI_API_KEY` is configured. Without a key, AXIOM stores a deterministic local summary so development and tests remain offline-friendly.
+
+Never commit real API keys. `.env.example` should contain placeholders only; put local secrets in `.env`.

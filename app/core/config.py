@@ -18,8 +18,9 @@ class Settings(BaseSettings):
     api_key_rate_limit_per_minute: int = 1000
     redis_url: str | None = None
     cors_origins: str = "*"
-    anthropic_api_key: str | None = None
-    anthropic_model: str = "claude-3-5-sonnet-latest"
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-1.5-flash"
+    admin_token: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

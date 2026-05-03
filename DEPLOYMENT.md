@@ -12,7 +12,8 @@ Set these variables in production:
 - `IP_RATE_LIMIT_PER_MINUTE`: per-IP request budget
 - `API_KEY_RATE_LIMIT_PER_MINUTE`: per-key request budget
 - `REDIS_URL`: reserved for a future distributed rate-limit backend
-- `ANTHROPIC_API_KEY`: optional Claude API key for replacing local insight summaries
+- `GEMINI_API_KEY`: optional Gemini API key for replacing local insight summaries
+- `ADMIN_TOKEN`: token required for admin mutations such as creating API keys, persisting anomalies, and generating insights
 
 ## Docker
 
@@ -28,3 +29,4 @@ docker run -p 8000:8000 --env DATABASE_URL=sqlite:///./axiom.db axiom
 3. Set `DATABASE_URL` to the Railway PostgreSQL connection string.
 4. Deploy with the included `Dockerfile`.
 5. Open `/health`, `/dashboard`, and `/docs` after deploy.
+6. Set `ADMIN_TOKEN` before exposing the service publicly.

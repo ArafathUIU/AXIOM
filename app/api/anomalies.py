@@ -6,6 +6,7 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.core.security import require_admin_token
 from app.models.anomaly import Anomaly
 from app.schemas.anomaly import (
     AnomalyCount,
@@ -70,6 +71,7 @@ def preview_anomalies(
 @router.post("/detect", response_model=list[PersistedAnomalyRead])
 def detect_and_persist_anomalies(
     db: Annotated[Session, Depends(get_db)],
+    _: Annotated[None, Depends(require_admin_token)],
     start_time: datetime | None = None,
     end_time: datetime | None = None,
 ) -> list[Anomaly]:

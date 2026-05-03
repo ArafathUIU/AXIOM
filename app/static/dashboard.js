@@ -8,8 +8,14 @@ const selectors = {
   trafficChart: document.querySelector("#traffic-chart"),
   latencyList: document.querySelector("#latency-list"),
   anomalySummary: document.querySelector("#anomaly-summary"),
+  statusCodes: document.querySelector("#status-codes"),
   endpointTable: document.querySelector("#endpoint-table"),
   recentLogs: document.querySelector("#recent-logs"),
+  recentAnomalies: document.querySelector("#recent-anomalies"),
+  insightForm: document.querySelector("#insight-form"),
+  insightPrompt: document.querySelector("#insight-prompt"),
+  insightResult: document.querySelector("#insight-result"),
+  adminToken: document.querySelector("#admin-token"),
   refreshButton: document.querySelector("#refresh-button"),
 };
 
@@ -60,6 +66,16 @@ function renderAnomalies(summary) {
   ].join("");
 }
 
+function renderStatusCodes(statusCodes) {
+  if (!statusCodes.length) {
+    selectors.statusCodes.innerHTML = '<p class="empty">No status code data yet.</p>';
+    return;
+  }
+  selectors.statusCodes.innerHTML = statusCodes.map((item) => (
+    `<div class="pill-row"><span>HTTP ${item.status_code}</span><strong>${item.count}</strong></div>`
+  )).join("");
+}
+
 function renderEndpoints(endpoints) {
   if (!endpoints.length) {
     selectors.endpointTable.innerHTML = '<tr><td colspan="5" class="empty">No endpoint analytics yet.</td></tr>';
@@ -89,17 +105,33 @@ function renderLogs(logs) {
   `).join("");
 }
 
+function renderRecentAnomalies(payload) {
+  const anomalies = payload.items ?? [];
+  if (!anomalies.length) {
+    selectors.recentAnomalies.innerHTML = '<p class="empty">No anomalies have been persisted yet.</p>';
+    return;
+  }
+  selectors.recentAnomalies.innerHTML = anomalies.map((anomaly) => `
+    <div class="log-row">
+      <span>${anomaly.severity} · ${anomaly.type}</span>
+      <strong>${anomaly.observed_value} / ${anomaly.threshold}</strong>
+    </div>
+  `).join("");
+}
+
 async function refreshDashboard() {
   selectors.refreshButton.disabled = true;
   try {
-    const [health, summary, traffic, latency, anomalies, endpoints, logs] = await Promise.all([
+    const [health, summary, traffic, latency, anomalies, statusCodes, endpoints, logs, recentAnomalies] = await Promise.all([
       fetchJson("/health"),
       fetchJson("/analytics/summary"),
       fetchJson("/analytics/traffic?interval=hour"),
       fetchJson("/analytics/latency-percentiles"),
       fetchJson("/anomalies/summary"),
+      fetchJson("/analytics/status-codes"),
       fetchJson("/analytics/endpoints?limit=8"),
       fetchJson("/logs/recent?limit=8"),
+      fetchJson("/anomalies?limit=5&offset=0"),
     ]);
 
     selectors.health.textContent = health.status === "ok" ? "Online" : "Unknown";
@@ -110,8 +142,10 @@ async function refreshDashboard() {
     renderTraffic(traffic);
     renderLatency(latency);
     renderAnomalies(anomalies);
+    renderStatusCodes(statusCodes);
     renderEndpoints(endpoints);
     renderLogs(logs);
+    renderRecentAnomalies(recentAnomalies);
     selectors.lastRefresh.textContent = new Date().toLocaleTimeString();
   } catch (error) {
     selectors.health.textContent = "Error";
@@ -121,5 +155,29 @@ async function refreshDashboard() {
   }
 }
 
+async function generateInsight(event) {
+  event.preventDefault();
+  const button = selectors.insightForm.querySelector("button");
+  button.disabled = true;
+  selectors.insightResult.textContent = "Generating insight...";
+  try {
+    const headers = { "Content-Type": "application/json", Accept: "application/json" };
+    if (selectors.adminToken.value) headers["X-Admin-Token"] = selectors.adminToken.value;
+    const response = await fetch("/insights", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ prompt: selectors.insightPrompt.value }),
+    });
+    if (!response.ok) throw new Error(`/insights returned ${response.status}`);
+    const insight = await response.json();
+    selectors.insightResult.textContent = insight.summary;
+  } catch (error) {
+    selectors.insightResult.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
 selectors.refreshButton.addEventListener("click", refreshDashboard);
+selectors.insightForm.addEventListener("submit", generateInsight);
 refreshDashboard();
