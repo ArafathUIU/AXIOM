@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -19,7 +19,10 @@ def detect_anomalies(
     if end_time is not None:
         filters.append(RequestLog.created_at <= end_time)
 
-    return [*_detect_slow_response(db, filters)]
+    return [
+        *_detect_slow_response(db, filters),
+        *_detect_error_spike(db, filters),
+    ]
 
 
 def _detect_slow_response(db: Session, filters: list[object]) -> list[AnomalyRead]:
@@ -41,6 +44,35 @@ def _detect_slow_response(db: Session, filters: list[object]) -> list[AnomalyRea
             message=f"Slow response detected on {slowest_log.method} {slowest_log.path}",
             observed_value=round(float(slowest_log.response_time_ms), 2),
             threshold=settings.slow_response_threshold_ms,
+            detected_at=datetime.now(UTC),
+        )
+    ]
+
+
+def _detect_error_spike(db: Session, filters: list[object]) -> list[AnomalyRead]:
+    total_requests = db.scalar(
+        select(func.count()).select_from(RequestLog).where(*filters)
+    ) or 0
+    if total_requests == 0:
+        return []
+
+    error_count = db.scalar(
+        select(func.count())
+        .select_from(RequestLog)
+        .where(RequestLog.status_code >= 400)
+        .where(*filters)
+    ) or 0
+    error_rate = error_count / total_requests * 100
+    if error_rate < settings.error_rate_threshold_percent:
+        return []
+
+    return [
+        AnomalyRead(
+            type="error_spike",
+            severity="critical",
+            message=f"Error rate reached {error_rate:.2f}% across {total_requests} requests",
+            observed_value=round(error_rate, 2),
+            threshold=settings.error_rate_threshold_percent,
             detected_at=datetime.now(UTC),
         )
     ]

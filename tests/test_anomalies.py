@@ -44,6 +44,45 @@ def test_anomaly_preview_detects_slow_responses() -> None:
     assert response.json()[0]["observed_value"] == 1500.0
 
 
+def test_anomaly_preview_detects_error_spikes() -> None:
+    with SessionLocal() as db:
+        db.add_all(
+            [
+                RequestLog(
+                    method="GET",
+                    path="/ok",
+                    status_code=200,
+                    response_time_ms=20,
+                    client_ip="127.0.0.1",
+                    user_agent="test-client",
+                ),
+                RequestLog(
+                    method="GET",
+                    path="/error-one",
+                    status_code=500,
+                    response_time_ms=30,
+                    client_ip="127.0.0.1",
+                    user_agent="test-client",
+                ),
+                RequestLog(
+                    method="GET",
+                    path="/error-two",
+                    status_code=502,
+                    response_time_ms=40,
+                    client_ip="127.0.0.1",
+                    user_agent="test-client",
+                ),
+            ]
+        )
+        db.commit()
+
+    response = client.get("/anomalies/preview")
+
+    assert response.status_code == 200
+    assert response.json()[0]["type"] == "error_spike"
+    assert response.json()[0]["observed_value"] == 66.67
+
+
 def _clear_logs() -> None:
     with SessionLocal() as db:
         db.execute(delete(RequestLog))
