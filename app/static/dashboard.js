@@ -67,7 +67,13 @@ function renderTraffic(buckets) {
   selectors.trafficChart.innerHTML = buckets.slice(-12).map((bucket) => {
     const height = Math.max((bucket.request_count / max) * 100, 4);
     const label = bucket.bucket.replace("T", " ").slice(5, 16);
-    return `<div class="bar"><span style="height:${height}%"></span><small>${label}</small></div>`;
+    return `
+      <div class="bar">
+        <strong>${bucket.request_count}</strong>
+        <span style="height:${height}%"></span>
+        <small>${label}</small>
+      </div>
+    `;
   }).join("");
 }
 

@@ -173,11 +173,19 @@ button:disabled { opacity: 0.62; cursor: wait; transform: none; }
 .panel-heading { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
 .panel-note { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
 
-.bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 220px; padding-top: 24px; }
+.bar-chart {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  height: 220px;
+  padding-top: 24px;
+}
 .bar {
   flex: 1;
   min-width: 28px;
+  height: 100%;
   display: grid;
+  grid-template-rows: auto 1fr auto;
   align-items: end;
   gap: 8px;
   color: var(--muted);
@@ -185,8 +193,15 @@ button:disabled { opacity: 0.62; cursor: wait; transform: none; }
   font-weight: 700;
   text-align: center;
 }
+.bar strong {
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1;
+}
 .bar span {
+  align-self: end;
   display: block;
+  width: 100%;
   min-height: 6px;
   border-radius: 8px 8px 3px 3px;
   background: linear-gradient(180deg, var(--red), var(--black));
