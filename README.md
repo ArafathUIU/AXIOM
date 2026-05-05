@@ -13,6 +13,14 @@ AXIOM is a lightweight, self-hosted API observability engine built with FastAPI.
 
 The dashboard is served directly by the FastAPI app at `/dashboard`. It gives an operational view of the API by combining request logs, analytics, anomaly summaries, status-code breakdowns, recent activity, clickable request inspection, and AI-generated insights.
 
+Additional dashboard views:
+
+![AXIOM dashboard overview with request volume, error rate, latency, and traffic metrics](docs/dashboard-overview.png)
+
+![AXIOM dashboard endpoint analytics and AI insight panels](docs/dashboard-endpoints.png)
+
+![AXIOM dashboard request log inspector showing origin, status, latency, and user agent](docs/dashboard-inspector.png)
+
 ---
 
 ## What AXIOM Does
