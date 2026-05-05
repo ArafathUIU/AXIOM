@@ -8,50 +8,59 @@
   </head>
   <body>
     <main class="shell">
-      <header class="hero">
-        <div>
-          <p class="eyebrow">API Intelligence & Observability Monitor</p>
-          <h1>AXIOM</h1>
-          <p class="subtitle">Live API traffic, latency, errors, logs, and anomaly signals in one self-hosted dashboard.</p>
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-mark">AX</div>
+          <div>
+            <p class="eyebrow">API Intelligence & Observability Monitor</p>
+            <h1>AXIOM</h1>
+          </div>
         </div>
-        <div class="hero-actions">
+        <div class="topbar-actions">
           <button id="refresh-button" type="button">Refresh Data</button>
           <a href="/docs">Open API Docs</a>
         </div>
       </header>
 
-      <section class="status-strip" aria-live="polite">
-        <div>
-          <span>Backend</span>
-          <strong id="health-status">Checking...</strong>
+      <section class="command-center">
+        <div class="command-copy">
+          <p class="eyebrow">Operational Console</p>
+          <h2>Observe traffic, latency, failures, and API health from one control surface.</h2>
+          <p class="subtitle">AXIOM turns FastAPI request logs into useful backend signals without a separate frontend deployment.</p>
         </div>
-        <div>
-          <span>Last Refresh</span>
-          <strong id="last-refresh">Never</strong>
+        <div class="status-card" aria-live="polite">
+          <div>
+            <span>Backend</span>
+            <strong id="health-status">Checking...</strong>
+          </div>
+          <div>
+            <span>Last Refresh</span>
+            <strong id="last-refresh">Never</strong>
+          </div>
         </div>
       </section>
 
       <section class="metric-grid">
-        <article class="metric-card accent-blue">
+        <article class="metric-card">
           <span>Total Requests</span>
           <strong id="total-requests">-</strong>
         </article>
-        <article class="metric-card accent-red">
+        <article class="metric-card danger">
           <span>Errors</span>
           <strong id="error-count">-</strong>
         </article>
-        <article class="metric-card accent-amber">
+        <article class="metric-card warning">
           <span>Error Rate</span>
           <strong id="error-rate">-</strong>
         </article>
-        <article class="metric-card accent-green">
+        <article class="metric-card">
           <span>Avg Latency</span>
           <strong id="average-latency">-</strong>
         </article>
       </section>
 
       <section class="dashboard-grid">
-        <article class="panel wide">
+        <article class="panel span-8">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Traffic</p>
@@ -61,25 +70,25 @@
           <div id="traffic-chart" class="bar-chart"></div>
         </article>
 
-        <article class="panel">
+        <article class="panel span-4">
           <p class="eyebrow">Latency</p>
           <h2>Percentiles</h2>
           <div class="latency-list" id="latency-list"></div>
         </article>
 
-        <article class="panel">
+        <article class="panel span-4">
           <p class="eyebrow">Failures</p>
           <h2>Anomaly Summary</h2>
           <div id="anomaly-summary" class="stack-list"></div>
         </article>
 
-        <article class="panel">
+        <article class="panel span-4">
           <p class="eyebrow">Responses</p>
           <h2>Status Codes</h2>
           <div id="status-codes" class="stack-list"></div>
         </article>
 
-        <article class="panel">
+        <article class="panel span-4">
           <p class="eyebrow">AI Insight</p>
           <h2>Ask AXIOM</h2>
           <form id="insight-form" class="insight-form">
@@ -90,7 +99,7 @@
           <div id="insight-result" class="insight-result empty">No insight generated yet.</div>
         </article>
 
-        <article class="panel wide">
+        <article class="panel span-8">
           <p class="eyebrow">Endpoints</p>
           <h2>Top API Paths</h2>
           <div class="table-wrap">
@@ -109,13 +118,24 @@
           </div>
         </article>
 
-        <article class="panel wide">
-          <p class="eyebrow">Recent Activity</p>
-          <h2>Request Logs</h2>
-          <div id="recent-logs" class="log-list"></div>
+        <article class="panel span-8">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Recent Activity</p>
+              <h2>Request Logs</h2>
+            </div>
+            <span class="panel-note">Click a request to inspect it</span>
+          </div>
+          <div id="recent-logs" class="log-list interactive"></div>
         </article>
 
-        <article class="panel wide">
+        <article class="panel span-4 inspector-panel">
+          <p class="eyebrow">Inspector</p>
+          <h2>Request Detail</h2>
+          <div id="request-detail" class="request-detail empty">Select a request log to view method, path, origin, latency, and timestamp.</div>
+        </article>
+
+        <article class="panel span-12">
           <p class="eyebrow">Detected Issues</p>
           <h2>Recent Anomalies</h2>
           <div id="recent-anomalies" class="log-list"></div>

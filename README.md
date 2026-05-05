@@ -9,9 +9,9 @@ AXIOM is a lightweight, self-hosted API observability engine built with FastAPI.
 
 ## Dashboard
 
-![AXIOM dashboard showing API metrics, traffic, latency, anomalies, status codes, recent logs, and AI insight generation](docs/dashboard.png)
+![AXIOM dashboard showing API metrics, traffic, latency, request inspection, anomalies, status codes, and AI insight generation](docs/dashboard.png)
 
-The dashboard is served directly by the FastAPI app at `/dashboard`. It gives a live operational view of the API by combining request logs, analytics, anomaly summaries, status-code breakdowns, recent activity, and AI-generated insights.
+The dashboard is served directly by the FastAPI app at `/dashboard`. It gives an operational view of the API by combining request logs, analytics, anomaly summaries, status-code breakdowns, recent activity, clickable request inspection, and AI-generated insights.
 
 ---
 
@@ -39,7 +39,7 @@ Core workflow:
 - **Rate Limiting** — throttles requests by client IP or API key with rate-limit response headers.
 - **AI Insight Layer** — uses Gemini when configured and falls back to deterministic local summaries for offline development.
 - **Admin Protection** — protects mutating management actions with an optional `X-Admin-Token` header.
-- **Built-in Dashboard** — serves a responsive static dashboard from the backend without requiring a separate frontend deployment.
+- **Built-in Dashboard** — serves a responsive static dashboard with KPI cards, analytics panels, request inspection, and AI insight generation from the backend without requiring a separate frontend deployment.
 - **Docker + CI Ready** — includes Docker, Docker Compose, deployment notes, and a GitHub Actions pytest workflow.
 
 ---
