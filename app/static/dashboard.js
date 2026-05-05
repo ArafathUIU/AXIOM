@@ -12,6 +12,7 @@ const selectors = {
   endpointTable: document.querySelector("#endpoint-table"),
   recentLogs: document.querySelector("#recent-logs"),
   recentAnomalies: document.querySelector("#recent-anomalies"),
+  requestDetail: document.querySelector("#request-detail"),
   insightForm: document.querySelector("#insight-form"),
   insightPrompt: document.querySelector("#insight-prompt"),
   insightResult: document.querySelector("#insight-result"),
@@ -21,12 +22,40 @@ const selectors = {
 
 async function fetchJson(url) {
   const response = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!response.ok) throw new Error(`${url} returned ${response.status}`);
+  if (!response.ok) throw new Error(await responseErrorMessage(response, url));
   return response.json();
+}
+
+async function responseErrorMessage(response, url) {
+  try {
+    const payload = await response.json();
+    if (payload.detail) return payload.detail;
+  } catch (error) {
+    // Fall through to the status-based message when the response is not JSON.
+  }
+  return `${url} returned ${response.status}`;
 }
 
 function formatNumber(value) {
   return new Intl.NumberFormat().format(value ?? 0);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatDateTime(value) {
+  if (!value) return "Unknown";
+  return new Date(value).toLocaleString();
+}
+
+function statusClass(statusCode) {
+  return statusCode < 400 ? "ok" : "";
 }
 
 function renderTraffic(buckets) {
@@ -83,8 +112,8 @@ function renderEndpoints(endpoints) {
   }
   selectors.endpointTable.innerHTML = endpoints.map((endpoint) => `
     <tr>
-      <td>${endpoint.method}</td>
-      <td>${endpoint.path}</td>
+      <td><span class="method-badge">${escapeHtml(endpoint.method)}</span></td>
+      <td>${escapeHtml(endpoint.path)}</td>
       <td>${endpoint.request_count}</td>
       <td>${endpoint.error_count}</td>
       <td>${endpoint.average_response_time_ms}</td>
@@ -98,11 +127,41 @@ function renderLogs(logs) {
     return;
   }
   selectors.recentLogs.innerHTML = logs.map((log) => `
-    <div class="log-row">
-      <span>${log.method} ${log.path}</span>
-      <strong>${log.status_code} · ${log.response_time_ms.toFixed(2)} ms</strong>
-    </div>
+    <button class="log-row" type="button" data-log-id="${log.id}">
+      <span class="log-main">
+        <span class="method-badge">${escapeHtml(log.method)}</span>
+        <span class="log-path">${escapeHtml(log.path)}</span>
+        <span class="log-meta">${escapeHtml(log.client_ip || "unknown origin")} · ${formatDateTime(log.created_at)}</span>
+      </span>
+      <span class="log-status">
+        <span class="status-badge ${statusClass(log.status_code)}">${log.status_code}</span>
+        ${log.response_time_ms.toFixed(2)} ms
+      </span>
+    </button>
   `).join("");
+}
+
+function renderRequestDetail(log) {
+  selectors.requestDetail.classList.remove("empty");
+  selectors.requestDetail.innerHTML = `
+    <div class="detail-row"><span>Request</span><strong>${escapeHtml(log.method)} ${escapeHtml(log.path)}</strong></div>
+    <div class="detail-row"><span>Status</span><strong>${log.status_code}</strong></div>
+    <div class="detail-row"><span>Latency</span><strong>${log.response_time_ms.toFixed(2)} ms</strong></div>
+    <div class="detail-row"><span>Client IP</span><strong>${escapeHtml(log.client_ip || "Unknown")}</strong></div>
+    <div class="detail-row"><span>User Agent</span><code>${escapeHtml(log.user_agent || "Unknown")}</code></div>
+    <div class="detail-row"><span>Timestamp</span><strong>${formatDateTime(log.created_at)}</strong></div>
+  `;
+}
+
+async function inspectRequest(logId) {
+  selectors.requestDetail.classList.add("empty");
+  selectors.requestDetail.textContent = "Loading request detail...";
+  try {
+    const log = await fetchJson(`/logs/${logId}`);
+    renderRequestDetail(log);
+  } catch (error) {
+    selectors.requestDetail.textContent = error.message;
+  }
 }
 
 function renderRecentAnomalies(payload) {
@@ -168,7 +227,12 @@ async function generateInsight(event) {
       headers,
       body: JSON.stringify({ prompt: selectors.insightPrompt.value }),
     });
-    if (!response.ok) throw new Error(`/insights returned ${response.status}`);
+    if (!response.ok) {
+      const message = await responseErrorMessage(response, "/insights");
+      throw new Error(
+        response.status === 403 ? `${message}. Enter the configured admin token to generate insights.` : message,
+      );
+    }
     const insight = await response.json();
     selectors.insightResult.textContent = insight.summary;
   } catch (error) {
@@ -180,4 +244,8 @@ async function generateInsight(event) {
 
 selectors.refreshButton.addEventListener("click", refreshDashboard);
 selectors.insightForm.addEventListener("submit", generateInsight);
+selectors.recentLogs.addEventListener("click", (event) => {
+  const row = event.target.closest("[data-log-id]");
+  if (row) inspectRequest(row.dataset.logId);
+});
 refreshDashboard();
